@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-gold: #c5a059;
+  --color-gold-light: #e5c78b;
+  --color-gold-dark: #8e6d2f;
+  --color-onyx: #0f0f0f;
+  --color-rich-black: #050505;
+}
+
+@layer base {
+  body {
+    @apply bg-rich-black text-slate-200 min-h-screen font-sans antialiased selection:bg-gold/30 selection:text-gold-light;
+    background-image: 
+      linear-gradient(to bottom, rgba(5, 5, 5, 0.8), rgba(5, 5, 5, 0.9)),
+      url('/background.png');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.8)];
+  }
+  
+  .glass-dark {
+    @apply bg-black/60 backdrop-blur-2xl border border-white/10 shadow-2xl;
+  }
+  
+  .glass-gold {
+    @apply bg-gold/[0.05] backdrop-blur-md border border-gold/20 shadow-lg;
+  }
+  
+  .btn-gold {
+    @apply bg-gradient-to-br from-gold-light via-gold to-gold-dark text-rich-black font-display font-semibold py-3 px-8 rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(197,160,89,0.2)] hover:shadow-[0_0_30px_rgba(197,160,89,0.4)] hover:-translate-y-0.5 active:scale-95 uppercase tracking-widest text-xs;
+  }
+
+  .btn-outline-gold {
+    @apply border border-gold/50 text-gold hover:bg-gold hover:text-rich-black font-display font-semibold py-3 px-8 rounded-full transition-all duration-500 uppercase tracking-widest text-xs;
+  }
+  
+  .input-glass {
+    @apply bg-white/[0.02] border border-white/[0.08] rounded-full py-3 px-6 focus:outline-none focus:ring-1 focus:ring-gold/40 transition-all placeholder:text-white/20 font-light;
+  }
+
+  .gold-text-gradient {
+    @apply bg-gradient-to-b from-gold-light via-gold to-gold-dark bg-clip-text text-transparent;
+  }
+
+  .nav-blur {
+    @apply bg-rich-black/60 backdrop-blur-md border-b border-white/[0.05];
+  }
+}
+
+/* Custom scrollbar for luxury feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-rich-black;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gold/20 rounded-full hover:bg-gold/40 transition-colors;
+}
+
