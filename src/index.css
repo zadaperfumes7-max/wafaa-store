@@ -6,18 +6,18 @@
   --font-serif: "Playfair Display", serif;
   --font-display: "Outfit", sans-serif;
   
-  --color-gold: #c5a059;
-  --color-gold-light: #e5c78b;
-  --color-gold-dark: #8e6d2f;
+  --color-silver: #e2e8f0;
+  --color-silver-light: #f8fafc;
+  --color-silver-dark: #94a3b8;
   --color-onyx: #0f0f0f;
   --color-rich-black: #050505;
 }
 
 @layer base {
   body {
-    @apply bg-rich-black text-slate-200 min-h-screen font-sans antialiased selection:bg-gold/30 selection:text-gold-light;
+    @apply bg-rich-black text-slate-200 min-h-screen font-sans antialiased selection:bg-white/20 selection:text-white;
     background-image: 
-      linear-gradient(to bottom, rgba(5, 5, 5, 0.8), rgba(5, 5, 5, 0.9)),
+      linear-gradient(to bottom, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.95)),
       url('/background.png');
     background-attachment: fixed;
     background-size: cover;
@@ -38,24 +38,24 @@
     @apply bg-black/60 backdrop-blur-2xl border border-white/10 shadow-2xl;
   }
   
-  .glass-gold {
-    @apply bg-gold/[0.05] backdrop-blur-md border border-gold/20 shadow-lg;
+  .glass-royal {
+    @apply bg-white/[0.05] backdrop-blur-md border border-white/20 shadow-lg;
   }
   
-  .btn-gold {
-    @apply bg-gradient-to-br from-gold-light via-gold to-gold-dark text-rich-black font-display font-semibold py-3 px-8 rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(197,160,89,0.2)] hover:shadow-[0_0_30px_rgba(197,160,89,0.4)] hover:-translate-y-0.5 active:scale-95 uppercase tracking-widest text-xs;
+  .btn-royal {
+    @apply bg-white text-rich-black font-display font-semibold py-3 px-8 rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 active:scale-95 uppercase tracking-widest text-xs;
   }
 
-  .btn-outline-gold {
-    @apply border border-gold/50 text-gold hover:bg-gold hover:text-rich-black font-display font-semibold py-3 px-8 rounded-full transition-all duration-500 uppercase tracking-widest text-xs;
+  .btn-outline-royal {
+    @apply border border-white/50 text-white hover:bg-white hover:text-rich-black font-display font-semibold py-3 px-8 rounded-full transition-all duration-500 uppercase tracking-widest text-xs;
   }
   
   .input-glass {
-    @apply bg-white/[0.02] border border-white/[0.08] rounded-full py-3 px-6 focus:outline-none focus:ring-1 focus:ring-gold/40 transition-all placeholder:text-white/20 font-light;
+    @apply bg-white/[0.02] border border-white/[0.08] rounded-full py-3 px-6 focus:outline-none focus:ring-1 focus:ring-white/40 transition-all placeholder:text-white/20 font-light;
   }
 
-  .gold-text-gradient {
-    @apply bg-gradient-to-b from-gold-light via-gold to-gold-dark bg-clip-text text-transparent;
+  .royal-text-gradient {
+    @apply bg-gradient-to-b from-white via-slate-200 to-slate-400 bg-clip-text text-transparent;
   }
 
   .nav-blur {
@@ -71,6 +71,6 @@
   @apply bg-rich-black;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-gold/20 rounded-full hover:bg-gold/40 transition-colors;
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
 }
 

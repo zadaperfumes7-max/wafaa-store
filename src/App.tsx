@@ -85,7 +85,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             <p className="text-white/60 mb-6">{message}</p>
             <button 
               onClick={() => window.location.reload()}
-              className="btn-gold w-full"
+              className="btn-royal w-full"
             >
               Restart Application
             </button>
@@ -147,10 +147,10 @@ const Navbar = ({ user, onLogin, onLogout, isAdmin, onToggleAdmin }: {
   <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-6">
     <div className="max-w-7xl mx-auto glass rounded-full px-8 py-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 glass-gold rounded-full flex items-center justify-center">
-          <ShoppingBag className="text-gold w-5 h-5" />
+        <div className="w-10 h-10 glass-royal rounded-full flex items-center justify-center">
+          <ShoppingBag className="text-white w-5 h-5" />
         </div>
-        <span className="text-xl font-display font-bold tracking-[0.2em] text-white">WAFAA <span className="gold-text-gradient">STORE</span></span>
+        <span className="text-xl font-display font-bold tracking-[0.2em] text-white">WAFAA <span className="royal-text-gradient">STORE</span></span>
       </div>
       
       <div className="flex items-center gap-6">
@@ -159,21 +159,21 @@ const Navbar = ({ user, onLogin, onLogout, isAdmin, onToggleAdmin }: {
             {isAdmin && (
               <button 
                 onClick={onToggleAdmin}
-                className="flex items-center gap-2 text-xs uppercase tracking-widest font-display font-semibold hover:text-gold transition-all"
+                className="flex items-center gap-2 text-xs uppercase tracking-widest font-display font-semibold hover:text-white transition-all"
               >
                 <Shield className="w-4 h-4" />
                 Management
               </button>
             )}
             <div className="flex items-center gap-4 border-l border-white/10 pl-6">
-              <img src={user.photoURL || ''} alt="" className="w-8 h-8 rounded-full border border-gold/30" referrerPolicy="no-referrer" />
+              <img src={user.photoURL || ''} alt="" className="w-8 h-8 rounded-full border border-white/30" referrerPolicy="no-referrer" />
               <button onClick={onLogout} className="text-white/40 hover:text-white transition-colors">
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
           </div>
         ) : (
-          <button onClick={onLogin} className="text-xs uppercase tracking-widest font-display font-semibold text-white/60 hover:text-gold transition-all">
+          <button onClick={onLogin} className="text-xs uppercase tracking-widest font-display font-semibold text-white/60 hover:text-white transition-all">
             Login
           </button>
         )}
@@ -204,12 +204,12 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
       <motion.div 
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="glass-dark w-full max-w-xl p-10 rounded-[2rem] relative border border-gold/20"
+        className="glass-dark w-full max-w-xl p-10 rounded-[2rem] relative border border-white/20"
       >
         <button onClick={onClose} className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors">
           <X className="w-6 h-6" />
         </button>
-        <h2 className="text-3xl font-serif font-bold mb-8 gold-text-gradient">{product ? 'Refine Product' : 'New Masterpiece'}</h2>
+        <h2 className="text-3xl font-serif font-bold mb-8 royal-text-gradient">{product ? 'Refine Product' : 'New Masterpiece'}</h2>
         
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -268,7 +268,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
           
           <button 
             onClick={() => onSave(formData)}
-            className="btn-gold w-full mt-4"
+            className="btn-royal w-full mt-4"
           >
             {product ? 'Save Changes' : 'Curate Product'}
           </button>
@@ -390,7 +390,7 @@ export function StoreApp() {
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full"
+          className="w-12 h-12 border-4 border-white border-t-transparent rounded-full"
         />
       </div>
     );
@@ -417,10 +417,10 @@ export function StoreApp() {
             className="pt-32 px-4 max-w-7xl mx-auto"
           >
             <div className="flex items-center justify-between mb-12">
-              <h1 className="text-4xl font-serif font-bold gold-text-gradient">Collection Management</h1>
+              <h1 className="text-4xl font-serif font-bold royal-text-gradient">Collection Management</h1>
               <button 
                 onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
-                className="btn-gold flex items-center gap-2"
+                className="btn-royal flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 Add Masterpiece
@@ -430,16 +430,16 @@ export function StoreApp() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map(product => (
                 <GlassCard key={product.id} className="p-6 flex gap-6 items-center border-white/[0.05]">
-                  <img src={product.imageUrl} alt="" className="w-24 h-24 rounded-2xl object-cover border border-gold/20" referrerPolicy="no-referrer" />
+                  <img src={product.imageUrl} alt="" className="w-24 h-24 rounded-2xl object-cover border border-white/20" referrerPolicy="no-referrer" />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-serif font-bold text-xl truncate">{product.name}</h3>
-                    <p className="gold-text-gradient font-display font-semibold">{product.price} EGP</p>
+                    <p className="royal-text-gradient font-display font-semibold">{product.price} EGP</p>
                     <p className="text-white/20 text-[10px] uppercase tracking-widest mt-1">{product.category}</p>
                   </div>
                   <div className="flex flex-col gap-2">
                     <button 
                       onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}
-                      className="p-3 hover:bg-white/5 rounded-xl text-gold transition-colors"
+                      className="p-3 hover:bg-white/5 rounded-xl text-white transition-colors"
                     >
                       <Edit className="w-5 h-5" />
                     </button>
@@ -467,13 +467,13 @@ export function StoreApp() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.5 }}
-                className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold/5 rounded-full blur-[120px] -z-10"
+                className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px] -z-10"
               />
               <motion.div 
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="inline-block glass px-6 py-2 rounded-full text-[10px] uppercase tracking-[0.4em] font-display font-bold text-gold mb-8"
+                className="inline-block glass px-6 py-2 rounded-full text-[10px] uppercase tracking-[0.4em] font-display font-bold text-white mb-8"
               >
                 The Art of Fragrance
               </motion.div>
@@ -484,7 +484,7 @@ export function StoreApp() {
                 className="text-7xl md:text-9xl font-serif font-bold tracking-tighter mb-8 leading-[0.9]"
               >
                 ELEGANCE IN <br />
-                <span className="gold-text-gradient italic">EVERY DROP</span>
+                <span className="royal-text-gradient italic">EVERY DROP</span>
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0 }}
@@ -502,7 +502,7 @@ export function StoreApp() {
                 transition={{ delay: 0.6 }}
                 className="max-w-xl mx-auto relative group"
               >
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5 group-focus-within:text-gold transition-colors" />
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5 group-focus-within:text-white transition-colors" />
                 <input 
                   type="text" 
                   placeholder="Search your signature essence..."
@@ -516,7 +516,7 @@ export function StoreApp() {
             {/* Products Grid */}
             <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
               {filteredProducts.map((product, idx) => (
-                <GlassCard key={product.id} delay={idx * 0.1} className="group border-white/[0.05] hover:border-gold/30 transition-all duration-700">
+                <GlassCard key={product.id} delay={idx * 0.1} className="group border-white/[0.05] hover:border-white/30 transition-all duration-700">
                   <div className="relative aspect-[3/4] overflow-hidden">
                     <img 
                       src={product.imageUrl} 
@@ -529,26 +529,26 @@ export function StoreApp() {
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-rich-black/40 backdrop-blur-[2px]">
                       <button 
                         onClick={() => orderViaWhatsApp(product)}
-                        className="btn-gold scale-90 group-hover:scale-100 transition-transform duration-500"
+                        className="btn-royal scale-90 group-hover:scale-100 transition-transform duration-500"
                       >
                         Acquire Now
                       </button>
                     </div>
                     
                     <div className="absolute top-6 left-6">
-                      <div className="glass-gold px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-display font-bold text-gold">
+                      <div className="glass-royal px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-display font-bold text-white">
                         {product.category || 'Exclusive'}
                       </div>
                     </div>
                   </div>
                   
                   <div className="p-8 text-center">
-                    <h3 className="text-2xl font-serif font-bold mb-2 group-hover:text-gold transition-colors duration-500">{product.name}</h3>
+                    <h3 className="text-2xl font-serif font-bold mb-2 group-hover:text-white transition-colors duration-500">{product.name}</h3>
                     <p className="text-white/30 text-xs uppercase tracking-[0.2em] font-display mb-4">{product.category}</p>
-                    <div className="w-12 h-[1px] bg-gold/30 mx-auto mb-6" />
+                    <div className="w-12 h-[1px] bg-white/30 mx-auto mb-6" />
                     <p className="text-white/40 text-sm font-light mb-8 line-clamp-2 leading-relaxed italic">"{product.description}"</p>
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-3xl font-display font-light gold-text-gradient">{product.price}</span>
+                      <span className="text-3xl font-display font-light royal-text-gradient">{product.price}</span>
                       <span className="text-[10px] uppercase tracking-widest text-white/20 font-bold">EGP</span>
                     </div>
                   </div>
@@ -576,14 +576,14 @@ export function StoreApp() {
       <footer className="mt-20 py-10 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="text-gold w-6 h-6" />
-            <span className="text-xl font-bold tracking-tighter">WAFAA <span className="text-gold">STORE</span></span>
+            <ShoppingBag className="text-white w-6 h-6" />
+            <span className="text-xl font-bold tracking-tighter">WAFAA <span className="text-white">STORE</span></span>
           </div>
           <p className="text-white/40 text-sm">© 2026 Wafaa Store. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="text-white/40 hover:text-gold transition-colors">Instagram</a>
-            <a href="#" className="text-white/40 hover:text-gold transition-colors">Facebook</a>
-            <a href={`https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}`} className="text-white/40 hover:text-gold transition-colors">WhatsApp</a>
+            <a href="#" className="text-white/40 hover:text-white transition-colors">Instagram</a>
+            <a href="#" className="text-white/40 hover:text-white transition-colors">Facebook</a>
+            <a href={`https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}`} className="text-white/40 hover:text-white transition-colors">WhatsApp</a>
           </div>
         </div>
       </footer>
