@@ -1,25 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  collection, 
-  onSnapshot, 
-  query, 
-  orderBy, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  serverTimestamp,
-  getDocFromServer
-} from 'firebase/firestore';
-import { 
   signInWithPopup, 
   GoogleAuthProvider, 
   onAuthStateChanged, 
   signOut,
   User as FirebaseUser
 } from 'firebase/auth';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, auth, storage, handleFirestoreError, OperationType } from './lib/firebase';
+import { auth } from './lib/firebase';
 import { 
   ShoppingBag, 
   Plus, 
@@ -37,7 +24,8 @@ import {
   Star,
   AlertTriangle,
   Upload,
-  Loader2
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -73,12 +61,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   render() {
     if (this.state.hasError) {
       let message = "Something went wrong.";
-      try {
-        const parsed = JSON.parse(this.state.error.message);
-        if (parsed.error) message = `Firestore Error: ${parsed.error}`;
-      } catch (e) {
-        message = this.state.error.message || message;
-      }
+      message = this.state.error.message || message;
 
       return (
         <div className="min-h-screen flex items-center justify-center p-4">
@@ -195,6 +178,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
     product || { name: '', description: '', price: 0, imageUrl: '', category: '' }
   );
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     if (product) setFormData(product);
@@ -205,23 +189,43 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Basic validation
+    // Validation: Max 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image is too large (Max 5MB)');
+      return;
+    }
+
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
       return;
     }
 
     setIsUploading(true);
+    setUploadProgress(0);
+
     try {
-      const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, imageUrl: data.imageUrl }));
+      setUploadProgress(100);
       toast.success('Image uploaded successfully');
-    } catch (error) {
+      
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }, 1000);
+    } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error('Failed to upload image');
-    } finally {
+      toast.error(`Upload failed: ${error.message}`);
       setIsUploading(false);
     }
   };
@@ -276,29 +280,59 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
             </div>
             <div>
               <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Product Image</label>
-              <div className="flex gap-2">
-                <label className="flex-1 flex items-center justify-center gap-2 input-glass cursor-pointer hover:bg-white/5 transition-colors">
-                  {isUploading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Upload className="w-4 h-4" />
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <label className={cn(
+                    "flex-1 flex items-center justify-center gap-2 input-glass cursor-pointer hover:bg-white/5 transition-all relative overflow-hidden",
+                    isUploading && "opacity-50 cursor-wait"
+                  )}>
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-xs font-mono">{uploadProgress}%</span>
+                        <div 
+                          className="absolute bottom-0 left-0 h-1 bg-white/20 transition-all duration-300" 
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        {formData.imageUrl?.startsWith('http') && !formData.imageUrl.includes('firebasestorage') ? 
+                          <ImageIcon className="w-4 h-4 text-blue-400" /> : 
+                          formData.imageUrl ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <Upload className="w-4 h-4" />
+                        }
+                        <span className="text-xs truncate">
+                          {formData.imageUrl ? 'Change Image' : 'Upload Image'}
+                        </span>
+                      </>
+                    )}
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      disabled={isUploading}
+                    />
+                  </label>
+                  {formData.imageUrl && (
+                    <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10 shrink-0">
+                      <img src={formData.imageUrl} alt="" className="w-full h-full object-cover" />
+                    </div>
                   )}
-                  <span className="text-xs truncate">
-                    {isUploading ? 'Uploading...' : formData.imageUrl ? 'Change Image' : 'Browse Image'}
-                  </span>
-                  <input 
-                    type="file" 
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    disabled={isUploading}
-                  />
-                </label>
-                {formData.imageUrl && (
-                  <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10 shrink-0">
-                    <img src={formData.imageUrl} alt="" className="w-full h-full object-cover" />
+                </div>
+                
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <span className="text-[10px] text-white/20 font-bold uppercase">OR URL</span>
                   </div>
-                )}
+                  <input 
+                    type="text" 
+                    className="input-glass w-full pl-16 text-xs" 
+                    placeholder="Paste image link here..."
+                    value={formData.imageUrl}
+                    onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -336,6 +370,19 @@ export function StoreApp() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products');
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      toast.error('Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
       setUser(u);
@@ -344,34 +391,10 @@ export function StoreApp() {
       if (isUserAdmin) {
         setShowAdminPanel(true);
       }
-      setLoading(false);
     });
-
-    const productsPath = 'products';
-    const q = query(collection(db, productsPath), orderBy('createdAt', 'desc'));
-    const unsubscribeProducts = onSnapshot(q, (snapshot) => {
-      const prods = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
-      setProducts(prods);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, productsPath);
-    });
-
-    // Test connection
-    const testConnection = async () => {
-      try {
-        await getDocFromServer(doc(db, 'test', 'connection'));
-      } catch (error) {
-        if(error instanceof Error && error.message.includes('the client is offline')) {
-          console.error("Please check your Firebase configuration.");
-        }
-      }
-    };
-    testConnection();
-
-    return () => {
-      unsubscribeAuth();
-      unsubscribeProducts();
-    };
+    
+    fetchProducts();
+    return () => unsubscribeAuth();
   }, []);
 
   const handleLogin = async () => {
@@ -387,38 +410,44 @@ export function StoreApp() {
 
   const handleLogout = async () => {
     await signOut(auth);
+    setUser(null);
+    setIsAdmin(false);
     setShowAdminPanel(false);
     toast.success('Logged out');
   };
 
   const handleSaveProduct = async (data: Partial<Product>) => {
-    const productsPath = 'products';
     try {
-      if (editingProduct) {
-        await updateDoc(doc(db, productsPath, editingProduct.id), data);
-        toast.success('Refined successfully');
-      } else {
-        await addDoc(collection(db, productsPath), {
-          ...data,
-          createdAt: serverTimestamp()
-        });
-        toast.success('Masterpiece added');
-      }
+      const method = editingProduct ? 'PUT' : 'POST';
+      const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error('Save failed');
+
+      await fetchProducts();
+      toast.success(editingProduct ? 'Refined successfully' : 'Masterpiece added');
       setIsModalOpen(false);
       setEditingProduct(null);
-    } catch (error) {
-      handleFirestoreError(error, editingProduct ? OperationType.UPDATE : OperationType.CREATE, productsPath);
+    } catch (error: any) {
+      toast.error(`Error: ${error.message}`);
     }
   };
 
   const handleDeleteProduct = async (id: string) => {
-    const productsPath = 'products';
     if (!window.confirm('Are you sure you want to remove this masterpiece?')) return;
     try {
-      await deleteDoc(doc(db, productsPath, id));
+      const response = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Delete failed');
+      
+      await fetchProducts();
       toast.success('Removed from collection');
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, productsPath);
+    } catch (error: any) {
+      toast.error(`Error: ${error.message}`);
     }
   };
 
