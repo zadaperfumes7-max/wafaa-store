@@ -18,7 +18,8 @@ import {
   signOut,
   User as FirebaseUser
 } from 'firebase/auth';
-import { db, auth, handleFirestoreError, OperationType } from './lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, auth, storage, handleFirestoreError, OperationType } from './lib/firebase';
 import { 
   ShoppingBag, 
   Plus, 
@@ -34,7 +35,9 @@ import {
   Menu,
   ChevronRight,
   Star,
-  AlertTriangle
+  AlertTriangle,
+  Upload,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -191,11 +194,37 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
   const [formData, setFormData] = useState<Partial<Product>>(
     product || { name: '', description: '', price: 0, imageUrl: '', category: '' }
   );
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (product) setFormData(product);
     else setFormData({ name: '', description: '', price: 0, imageUrl: '', category: '' });
   }, [product]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Basic validation
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -246,13 +275,31 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
               />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Visual URL</label>
-              <input 
-                type="text" 
-                className="input-glass w-full" 
-                value={formData.imageUrl}
-                onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-              />
+              <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Product Image</label>
+              <div className="flex gap-2">
+                <label className="flex-1 flex items-center justify-center gap-2 input-glass cursor-pointer hover:bg-white/5 transition-colors">
+                  {isUploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                  <span className="text-xs truncate">
+                    {isUploading ? 'Uploading...' : formData.imageUrl ? 'Change Image' : 'Browse Image'}
+                  </span>
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={isUploading}
+                  />
+                </label>
+                {formData.imageUrl && (
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10 shrink-0">
+                    <img src={formData.imageUrl} alt="" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -268,7 +315,8 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
           
           <button 
             onClick={() => onSave(formData)}
-            className="btn-royal w-full mt-4"
+            disabled={isUploading}
+            className="btn-royal w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {product ? 'Save Changes' : 'Curate Product'}
           </button>
@@ -331,8 +379,9 @@ export function StoreApp() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       toast.success('Logged in successfully');
-    } catch (error) {
-      toast.error('Login failed');
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast.error(`Login failed: ${error.message || 'Unknown error'}`);
     }
   };
 
