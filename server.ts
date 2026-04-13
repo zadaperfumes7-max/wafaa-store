@@ -3,7 +3,6 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import fs from 'fs';
 import Database from 'better-sqlite3';
-import multer from 'multer';
 import cors from 'cors';
 
 const __dirname = process.cwd();
@@ -23,34 +22,10 @@ db.exec(`
   )
 `);
 
-// Setup Multer for Image Uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, 'uploads');
-    try {
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      cb(null, uploadDir);
-    } catch (err) {
-      console.error('Directory creation error:', err);
-      cb(err as Error, uploadDir);
-    }
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
-});
-
 async function startServer() {
   const app = express();
   app.use(cors());
-  app.use(express.json({ limit: '10mb' })); // Increase limit for Base64 images
+  app.use(express.json({ limit: '10mb' })); // For Base64 images
 
   // --- API Routes ---
 
