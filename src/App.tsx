@@ -143,36 +143,36 @@ const Navbar = ({ user, onLogin, onLogout, isAdmin, onToggleAdmin }: {
   isAdmin: boolean,
   onToggleAdmin: () => void
 }) => (
-  <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-6">
-    <div className="max-w-7xl mx-auto glass rounded-full px-8 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 glass-royal rounded-full flex items-center justify-center">
-          <ShoppingBag className="text-white w-5 h-5" />
+  <nav className="fixed top-0 left-0 right-0 z-50 px-2 sm:px-4 py-4 sm:py-6">
+    <div className="max-w-7xl mx-auto glass rounded-full px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 glass-royal rounded-full flex items-center justify-center">
+          <ShoppingBag className="text-white w-4 h-4 sm:w-5 sm:h-5" />
         </div>
-        <span className="text-xl font-display font-bold tracking-[0.2em] text-white">WAFAA <span className="royal-text-gradient">STORE</span></span>
+        <span className="text-sm sm:text-xl font-display font-bold tracking-[0.1em] sm:tracking-[0.2em] text-white">WAFAA <span className="royal-text-gradient">STORE</span></span>
       </div>
       
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 sm:gap-6">
         {user ? (
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 sm:gap-6">
             {isAdmin && (
               <button 
                 onClick={onToggleAdmin}
-                className="flex items-center gap-2 text-xs uppercase tracking-widest font-display font-semibold hover:text-white transition-all"
+                className="flex items-center gap-1 sm:gap-2 text-[8px] sm:text-xs uppercase tracking-widest font-display font-semibold hover:text-white transition-all"
               >
-                <Shield className="w-4 h-4" />
-                Management
+                <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden xs:inline">Management</span>
               </button>
             )}
-            <div className="flex items-center gap-4 border-l border-white/10 pl-6">
-              <img src={user.photoURL || ''} alt="" className="w-8 h-8 rounded-full border border-white/30" referrerPolicy="no-referrer" />
+            <div className="flex items-center gap-2 sm:gap-4 border-l border-white/10 pl-3 sm:pl-6">
+              <img src={user.photoURL || ''} alt="" className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border border-white/30" referrerPolicy="no-referrer" />
               <button onClick={onLogout} className="text-white/40 hover:text-white transition-colors">
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>
         ) : (
-          <button onClick={onLogin} className="text-xs uppercase tracking-widest font-display font-semibold text-white/60 hover:text-white transition-all">
+          <button onClick={onLogin} className="text-[10px] sm:text-xs uppercase tracking-widest font-display font-semibold text-white/60 hover:text-white transition-all">
             Login
           </button>
         )}
@@ -273,30 +273,30 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
       <motion.div 
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="glass-dark w-full max-w-xl p-10 rounded-[2rem] relative border border-white/20"
+        className="glass-dark w-full max-w-xl p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2rem] relative border border-white/20 max-h-[90vh] overflow-y-auto"
       >
-        <button onClick={onClose} className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors">
-          <X className="w-6 h-6" />
+        <button onClick={onClose} className="absolute top-4 sm:top-8 right-4 sm:right-8 text-white/20 hover:text-white transition-colors z-10">
+          <X className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
-        <h2 className="text-3xl font-serif font-bold mb-8 royal-text-gradient">{product ? 'Refine Product' : 'New Masterpiece'}</h2>
+        <h2 className="text-xl sm:text-3xl font-serif font-bold mb-6 sm:mb-8 royal-text-gradient">{product ? 'Refine Product' : 'New Masterpiece'}</h2>
         
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Fragrance Name</label>
+              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Fragrance Name</label>
               <input 
                 type="text" 
-                className="input-glass w-full" 
+                className="input-glass w-full text-sm sm:text-base" 
                 value={formData.name || ''}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g. Midnight Oud"
               />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Category</label>
+              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Category</label>
               <input 
                 type="text" 
-                className="input-glass w-full" 
+                className="input-glass w-full text-sm sm:text-base" 
                 value={formData.category || ''}
                 onChange={e => setFormData({ ...formData, category: e.target.value })}
                 placeholder="e.g. Oriental"
@@ -304,32 +304,32 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Price (EGP)</label>
+              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Price (EGP)</label>
               <input 
                 type="number" 
-                className="input-glass w-full" 
+                className="input-glass w-full text-sm sm:text-base" 
                 value={formData.price ?? 0}
                 onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
               />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Size (ml)</label>
+              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Size (ml)</label>
               <input 
                 type="number" 
-                className="input-glass w-full" 
+                className="input-glass w-full text-sm sm:text-base" 
                 value={formData.size ?? 50}
                 onChange={e => setFormData({ ...formData, size: Number(e.target.value) })}
                 placeholder="e.g. 50"
               />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Product Image</label>
+              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Product Image</label>
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <label className={cn(
-                    "flex-1 flex items-center justify-center gap-2 input-glass cursor-pointer hover:bg-white/5 transition-all relative overflow-hidden",
+                    "flex-1 flex items-center justify-center gap-2 input-glass cursor-pointer hover:bg-white/5 transition-all relative overflow-hidden h-[42px] sm:h-auto",
                     isUploading && "opacity-50 cursor-wait"
                   )}>
                     {isUploading ? (
@@ -556,31 +556,31 @@ export function StoreApp() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
               {products.map(product => (
-                <GlassCard key={product.id} className="p-6 flex gap-6 items-center border-white/[0.05]">
-                  <img src={product.imageUrl} alt="" className="w-24 h-24 rounded-2xl object-cover border border-white/20" referrerPolicy="no-referrer" />
+                <GlassCard key={product.id} className="p-4 sm:p-6 flex gap-4 sm:gap-6 items-center border-white/[0.05]">
+                  <img src={product.imageUrl} alt="" className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl sm:rounded-2xl object-cover border border-white/20" referrerPolicy="no-referrer" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-serif font-bold text-xl truncate">{product.name}</h3>
-                    <div className="flex items-center gap-3">
-                      <p className="royal-text-gradient font-display font-semibold">{product.price} EGP</p>
-                      <span className="text-white/40 text-[10px]">•</span>
-                      <p className="text-white/60 text-xs font-mono">{product.size}ml</p>
+                    <h3 className="font-serif font-bold text-base sm:text-xl truncate">{product.name}</h3>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <p className="royal-text-gradient font-display font-semibold text-sm sm:text-base">{product.price} EGP</p>
+                      <span className="text-white/40 text-[8px] sm:text-[10px]">•</span>
+                      <p className="text-white/60 text-[10px] sm:text-xs font-mono">{product.size}ml</p>
                     </div>
-                    <p className="text-white/20 text-[10px] uppercase tracking-widest mt-1">{product.category}</p>
+                    <p className="text-white/20 text-[8px] sm:text-[10px] uppercase tracking-widest mt-1">{product.category}</p>
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1 sm:gap-2">
                     <button 
                       onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}
-                      className="p-3 hover:bg-white/5 rounded-xl text-white transition-colors"
+                      className="p-2 sm:p-3 hover:bg-white/5 rounded-lg sm:rounded-xl text-white transition-colors"
                     >
-                      <Edit className="w-5 h-5" />
+                      <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                     <button 
                       onClick={() => handleDeleteProduct(product.id)}
-                      className="p-3 hover:bg-white/5 rounded-xl text-red-400/60 hover:text-red-400 transition-colors"
+                      className="p-2 sm:p-3 hover:bg-white/5 rounded-lg sm:rounded-xl text-red-400/60 hover:text-red-400 transition-colors"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </div>
                 </GlassCard>
@@ -595,18 +595,18 @@ export function StoreApp() {
             className="pt-32 px-4 max-w-7xl mx-auto"
           >
             {/* Hero Section */}
-            <section className="mb-32 text-center relative">
+            <section className="mb-16 sm:mb-32 text-center relative">
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1.5 }}
-                className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px] -z-10"
+                className="absolute -top-20 left-1/2 -translate-x-1/2 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-white/5 rounded-full blur-[60px] sm:blur-[120px] -z-10"
               />
               <motion.div 
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="inline-block glass px-6 py-2 rounded-full text-[10px] uppercase tracking-[0.4em] font-display font-bold text-white mb-8"
+                className="inline-block glass px-4 sm:px-6 py-2 rounded-full text-[8px] sm:text-[10px] uppercase tracking-[0.3em] sm:tracking-[0.4em] font-display font-bold text-white mb-6 sm:mb-8"
               >
                 The Art of Fragrance
               </motion.div>
@@ -614,7 +614,7 @@ export function StoreApp() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="text-7xl md:text-9xl font-serif font-bold tracking-tighter mb-8 leading-[0.9]"
+                className="text-5xl sm:text-7xl md:text-9xl font-serif font-bold tracking-tighter mb-6 sm:mb-8 leading-[0.9]"
               >
                 ELEGANCE IN <br />
                 <span className="royal-text-gradient italic">EVERY DROP</span>
@@ -623,7 +623,7 @@ export function StoreApp() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
-                className="text-white/40 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-light leading-relaxed"
+                className="text-white/40 text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-12 font-light leading-relaxed px-4"
               >
                 Step into a world where scent meets soul. Our curated collection 
                 defines the pinnacle of olfactory craftsmanship.
@@ -633,13 +633,13 @@ export function StoreApp() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="max-w-xl mx-auto relative group"
+                className="max-w-xl mx-auto relative group px-4"
               >
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 w-5 h-5 group-focus-within:text-white transition-colors" />
+                <Search className="absolute left-10 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 sm:w-5 sm:h-5 group-focus-within:text-white transition-colors" />
                 <input 
                   type="text" 
                   placeholder="Search your signature essence..."
-                  className="input-glass w-full pl-14 py-5 text-lg"
+                  className="input-glass w-full pl-12 sm:pl-14 py-4 sm:py-5 text-sm sm:text-lg"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
@@ -647,10 +647,10 @@ export function StoreApp() {
             </section>
 
             {/* Products Grid */}
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-12">
               {filteredProducts.map((product, idx) => (
                 <GlassCard key={product.id} delay={idx * 0.1} className="group border-white/[0.05] hover:border-white/30 transition-all duration-700">
-                  <div className="relative aspect-[3/4] overflow-hidden">
+                  <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden">
                     <img 
                       src={product.imageUrl} 
                       alt={product.name} 
@@ -668,24 +668,24 @@ export function StoreApp() {
                       </button>
                     </div>
                     
-                    <div className="absolute top-6 left-6 flex flex-col gap-2">
-                      <div className="glass-royal px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-display font-bold text-white">
+                    <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-col gap-2">
+                      <div className="glass-royal px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[10px] uppercase tracking-widest font-display font-bold text-white">
                         {product.category || 'Exclusive'}
                       </div>
-                      <div className="glass px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-mono font-bold text-white/60">
+                      <div className="glass px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[10px] uppercase tracking-widest font-mono font-bold text-white/60">
                         {product.size}ml
                       </div>
                     </div>
                   </div>
                   
-                  <div className="p-8 text-center">
-                    <h3 className="text-2xl font-serif font-bold mb-2 group-hover:text-white transition-colors duration-500">{product.name}</h3>
-                    <p className="text-white/30 text-xs uppercase tracking-[0.2em] font-display mb-4">{product.category}</p>
-                    <div className="w-12 h-[1px] bg-white/30 mx-auto mb-6" />
-                    <p className="text-white/40 text-sm font-light mb-8 line-clamp-2 leading-relaxed italic">"{product.description}"</p>
+                  <div className="p-6 sm:p-8 text-center">
+                    <h3 className="text-xl sm:text-2xl font-serif font-bold mb-1 sm:mb-2 group-hover:text-white transition-colors duration-500">{product.name}</h3>
+                    <p className="text-white/30 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-display mb-3 sm:mb-4">{product.category}</p>
+                    <div className="w-10 sm:w-12 h-[1px] bg-white/30 mx-auto mb-4 sm:mb-6" />
+                    <p className="text-white/40 text-xs sm:text-sm font-light mb-6 sm:mb-8 line-clamp-2 leading-relaxed italic">"{product.description}"</p>
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-3xl font-display font-light royal-text-gradient">{product.price}</span>
-                      <span className="text-[10px] uppercase tracking-widest text-white/20 font-bold">EGP</span>
+                      <span className="text-2xl sm:text-3xl font-display font-light royal-text-gradient">{product.price}</span>
+                      <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-white/20 font-bold">EGP</span>
                     </div>
                   </div>
                 </GlassCard>
@@ -710,17 +710,22 @@ export function StoreApp() {
       />
 
       <footer className="mt-20 py-10 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center gap-8">
           <div className="flex items-center gap-2">
             <ShoppingBag className="text-white w-6 h-6" />
             <span className="text-xl font-bold tracking-tighter">WAFAA <span className="text-white">STORE</span></span>
           </div>
-          <p className="text-white/40 text-sm">© 2026 Wafaa Store. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="text-white/40 hover:text-white transition-colors">Instagram</a>
-            <a href="#" className="text-white/40 hover:text-white transition-colors">Facebook</a>
-            <a href={`https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}`} className="text-white/40 hover:text-white transition-colors">WhatsApp</a>
+          
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+            <a href="#" className="text-white/40 hover:text-white transition-colors text-sm uppercase tracking-widest">Instagram</a>
+            <a href="#" className="text-white/40 hover:text-white transition-colors text-sm uppercase tracking-widest">Facebook</a>
+            <a href={`https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}`} className="text-white/40 hover:text-white transition-colors text-sm uppercase tracking-widest">WhatsApp</a>
           </div>
+
+          <p className="text-white/20 text-[10px] uppercase tracking-[0.2em] text-center">
+            © 2026 Wafaa Store. All rights reserved. <br className="sm:hidden" />
+            <span className="hidden sm:inline"> | </span> Crafted for Excellence
+          </p>
         </div>
       </footer>
     </div>
