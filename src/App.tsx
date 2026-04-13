@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { 
+  collection, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  serverTimestamp,
+  getDocFromServer
+} from 'firebase/firestore';
+import { 
   signInWithPopup, 
   GoogleAuthProvider, 
   onAuthStateChanged, 
   signOut,
   User as FirebaseUser
 } from 'firebase/auth';
-import { auth } from './lib/firebase';
+import { db, auth, handleFirestoreError, OperationType } from './lib/firebase';
 import { 
   ShoppingBag, 
   Plus, 
@@ -371,19 +383,6 @@ export function StoreApp() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('/api/products');
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error('Fetch error:', error);
-      toast.error('Failed to load products');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
       setUser(u);
@@ -392,10 +391,34 @@ export function StoreApp() {
       if (isUserAdmin) {
         setShowAdminPanel(true);
       }
+      setLoading(false);
     });
-    
-    fetchProducts();
-    return () => unsubscribeAuth();
+
+    const productsPath = 'products';
+    const q = query(collection(db, productsPath), orderBy('createdAt', 'desc'));
+    const unsubscribeProducts = onSnapshot(q, (snapshot) => {
+      const prods = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      setProducts(prods);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, productsPath);
+    });
+
+    // Test connection
+    const testConnection = async () => {
+      try {
+        await getDocFromServer(doc(db, 'test', 'connection'));
+      } catch (error) {
+        if(error instanceof Error && error.message.includes('the client is offline')) {
+          console.error("Please check your Firebase configuration.");
+        }
+      }
+    };
+    testConnection();
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeProducts();
+    };
   }, []);
 
   const handleLogin = async () => {
@@ -411,44 +434,38 @@ export function StoreApp() {
 
   const handleLogout = async () => {
     await signOut(auth);
-    setUser(null);
-    setIsAdmin(false);
     setShowAdminPanel(false);
     toast.success('Logged out');
   };
 
   const handleSaveProduct = async (data: Partial<Product>) => {
+    const productsPath = 'products';
     try {
-      const method = editingProduct ? 'PUT' : 'POST';
-      const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) throw new Error('Save failed');
-
-      await fetchProducts();
-      toast.success(editingProduct ? 'Refined successfully' : 'Masterpiece added');
+      if (editingProduct) {
+        await updateDoc(doc(db, productsPath, editingProduct.id), data);
+        toast.success('Refined successfully');
+      } else {
+        await addDoc(collection(db, productsPath), {
+          ...data,
+          createdAt: serverTimestamp()
+        });
+        toast.success('Masterpiece added');
+      }
       setIsModalOpen(false);
       setEditingProduct(null);
-    } catch (error: any) {
-      toast.error(`Error: ${error.message}`);
+    } catch (error) {
+      handleFirestoreError(error, editingProduct ? OperationType.UPDATE : OperationType.CREATE, productsPath);
     }
   };
 
   const handleDeleteProduct = async (id: string) => {
+    const productsPath = 'products';
     if (!window.confirm('Are you sure you want to remove this masterpiece?')) return;
     try {
-      const response = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Delete failed');
-      
-      await fetchProducts();
+      await deleteDoc(doc(db, productsPath, id));
       toast.success('Removed from collection');
-    } catch (error: any) {
-      toast.error(`Error: ${error.message}`);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, productsPath);
     }
   };
 
