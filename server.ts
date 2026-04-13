@@ -6,11 +6,11 @@ import Database from 'better-sqlite3';
 import multer from 'multer';
 import cors from 'cors';
 
-const __dirname = path.resolve();
+const __dirname = process.cwd();
 const PORT = 3000;
 
 // Initialize Database
-const db = new Database('store.db');
+const db = new Database(path.join(__dirname, 'store.db'));
 db.exec(`
   CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,10 +116,10 @@ async function startServer() {
     upload.single('image')(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         console.error('Multer Error:', err);
-        return res.status(400).json({ error: `Upload error: ${err.message}` });
+        return res.status(400).json({ error: `Multer Error: ${err.message} (${err.code})` });
       } else if (err) {
         console.error('Unknown Upload Error:', err);
-        return res.status(500).json({ error: 'Internal server error during upload' });
+        return res.status(500).json({ error: `Server Error: ${err.message || 'Unknown error'}` });
       }
 
       if (!req.file) {
