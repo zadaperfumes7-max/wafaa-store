@@ -10,6 +10,7 @@
         "price": { "type": "number", "description": "Price of the perfume." },
         "imageUrl": { "type": "string", "description": "URL of the product image." },
         "category": { "type": "string", "description": "Category of the perfume." },
+        "size": { "type": "number", "description": "Size of the bottle in ml." },
         "createdAt": { "type": "string", "format": "date-time", "description": "When the product was added." }
       },
       "required": ["name", "price", "imageUrl"]

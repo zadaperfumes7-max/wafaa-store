@@ -46,6 +46,7 @@ service cloud.firestore {
       return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
              data.price is number && data.price >= 0 &&
              data.imageUrl is string && data.imageUrl.size() > 0 &&
+             (!('size' in data) || (data.size is number && data.size > 0)) &&
              (!('description' in data) || (data.description is string && data.description.size() < 1000)) &&
              (!('category' in data) || (data.category is string && data.category.size() < 50));
     }

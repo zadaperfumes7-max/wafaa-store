@@ -111,6 +111,7 @@ interface Product {
   price: number;
   imageUrl: string;
   category: string;
+  size: number;
   createdAt: any;
 }
 
@@ -187,14 +188,14 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
   product?: Product | null
 }) => {
   const [formData, setFormData] = useState<Partial<Product>>(
-    product || { name: '', description: '', price: 0, imageUrl: '', category: '' }
+    product || { name: '', description: '', price: 0, imageUrl: '', category: '', size: 50 }
   );
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     if (product) setFormData(product);
-    else setFormData({ name: '', description: '', price: 0, imageUrl: '', category: '' });
+    else setFormData({ name: '', description: '', price: 0, imageUrl: '', category: '', size: 50 });
   }, [product]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,7 +304,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Price (EGP)</label>
               <input 
@@ -311,6 +312,16 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
                 className="input-glass w-full" 
                 value={formData.price}
                 onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Size (ml)</label>
+              <input 
+                type="number" 
+                className="input-glass w-full" 
+                value={formData.size}
+                onChange={e => setFormData({ ...formData, size: Number(e.target.value) })}
+                placeholder="e.g. 50"
               />
             </div>
             <div>
@@ -551,7 +562,11 @@ export function StoreApp() {
                   <img src={product.imageUrl} alt="" className="w-24 h-24 rounded-2xl object-cover border border-white/20" referrerPolicy="no-referrer" />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-serif font-bold text-xl truncate">{product.name}</h3>
-                    <p className="royal-text-gradient font-display font-semibold">{product.price} EGP</p>
+                    <div className="flex items-center gap-3">
+                      <p className="royal-text-gradient font-display font-semibold">{product.price} EGP</p>
+                      <span className="text-white/40 text-[10px]">•</span>
+                      <p className="text-white/60 text-xs font-mono">{product.size}ml</p>
+                    </div>
                     <p className="text-white/20 text-[10px] uppercase tracking-widest mt-1">{product.category}</p>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -653,9 +668,12 @@ export function StoreApp() {
                       </button>
                     </div>
                     
-                    <div className="absolute top-6 left-6">
+                    <div className="absolute top-6 left-6 flex flex-col gap-2">
                       <div className="glass-royal px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-display font-bold text-white">
                         {product.category || 'Exclusive'}
+                      </div>
+                      <div className="glass px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-mono font-bold text-white/60">
+                        {product.size}ml
                       </div>
                     </div>
                   </div>
