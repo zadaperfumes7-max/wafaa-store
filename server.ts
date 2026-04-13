@@ -50,8 +50,7 @@ const upload = multer({
 async function startServer() {
   const app = express();
   app.use(cors());
-  app.use(express.json());
-  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+  app.use(express.json({ limit: '10mb' })); // Increase limit for Base64 images
 
   // --- API Routes ---
 
@@ -109,26 +108,6 @@ async function startServer() {
       console.error('DB Delete Error:', err);
       res.status(500).json({ error: 'Failed to delete product' });
     }
-  });
-
-  // Upload image
-  app.post('/api/upload', (req, res) => {
-    upload.single('image')(req, res, (err) => {
-      if (err instanceof multer.MulterError) {
-        console.error('Multer Error:', err);
-        return res.status(400).json({ error: `Multer Error: ${err.message} (${err.code})` });
-      } else if (err) {
-        console.error('Unknown Upload Error:', err);
-        return res.status(500).json({ error: `Server Error: ${err.message || 'Unknown error'}` });
-      }
-
-      if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-      }
-
-      const imageUrl = `/uploads/${req.file.filename}`;
-      res.json({ imageUrl });
-    });
   });
 
   // --- Vite Setup ---

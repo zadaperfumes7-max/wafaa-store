@@ -204,31 +204,29 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
     setUploadProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Upload failed');
-      }
-
-      const data = await response.json();
-      setFormData(prev => ({ ...prev, imageUrl: data.imageUrl }));
-      setUploadProgress(100);
-      toast.success('Image uploaded successfully');
-      
-      setTimeout(() => {
-        setIsUploading(false);
-        setUploadProgress(0);
-      }, 1000);
+      const reader = new FileReader();
+      reader.onloadstart = () => setUploadProgress(10);
+      reader.onprogress = (event) => {
+        if (event.lengthComputable) {
+          setUploadProgress(Math.round((event.loaded / event.total) * 100));
+        }
+      };
+      reader.onload = () => {
+        setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
+        setUploadProgress(100);
+        toast.success('Image processed successfully');
+        setTimeout(() => {
+          setIsUploading(false);
+          setUploadProgress(0);
+        }, 500);
+      };
+      reader.onerror = () => {
+        throw new Error('Failed to read file');
+      };
+      reader.readAsDataURL(file);
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error(`Upload failed: ${error.message}`);
+      console.error('Processing error:', error);
+      toast.error(`Processing failed: ${error.message}`);
       setIsUploading(false);
     }
   };
