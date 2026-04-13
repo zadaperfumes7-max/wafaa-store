@@ -287,7 +287,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
               <input 
                 type="text" 
                 className="input-glass w-full" 
-                value={formData.name}
+                value={formData.name || ''}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g. Midnight Oud"
               />
@@ -297,7 +297,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
               <input 
                 type="text" 
                 className="input-glass w-full" 
-                value={formData.category}
+                value={formData.category || ''}
                 onChange={e => setFormData({ ...formData, category: e.target.value })}
                 placeholder="e.g. Oriental"
               />
@@ -310,7 +310,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
               <input 
                 type="number" 
                 className="input-glass w-full" 
-                value={formData.price}
+                value={formData.price ?? 0}
                 onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
               />
             </div>
@@ -319,7 +319,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
               <input 
                 type="number" 
                 className="input-glass w-full" 
-                value={formData.size}
+                value={formData.size ?? 50}
                 onChange={e => setFormData({ ...formData, size: Number(e.target.value) })}
                 placeholder="e.g. 50"
               />
@@ -375,7 +375,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
                     type="text" 
                     className="input-glass w-full pl-16 text-xs" 
                     placeholder="Paste image link here..."
-                    value={formData.imageUrl}
+                    value={formData.imageUrl || ''}
                     onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
                   />
                 </div>
@@ -387,7 +387,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
             <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Olfactory Story</label>
             <textarea 
               className="input-glass w-full h-32 resize-none rounded-2xl" 
-              value={formData.description}
+              value={formData.description || ''}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
               placeholder="Describe the essence..."
             />
