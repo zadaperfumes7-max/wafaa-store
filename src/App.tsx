@@ -104,18 +104,92 @@ const WHATSAPP_NUMBER = "+201156869853";
 const ADMIN_EMAIL = "zada.perfumes7@gmail.com";
 
 // --- Types ---
+interface Variant {
+  size: number;
+  price: number;
+}
+
 interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
   imageUrl: string;
   category: string;
-  size: number;
+  variants: Variant[];
   createdAt: any;
 }
 
 // --- Components ---
+
+interface StoreProductCardProps {
+  product: Product;
+  delay: number;
+  onOrder: (p: Product, v: Variant) => void;
+}
+
+const StoreProductCard: React.FC<StoreProductCardProps> = ({ product, delay, onOrder }) => {
+  const [selectedVariant, setSelectedVariant] = useState<Variant>(product.variants?.[0] || { size: 0, price: 0 });
+
+  return (
+    <GlassCard delay={delay} className="group border-white/[0.05] hover:border-white/30 transition-all duration-700">
+      <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden">
+        <img 
+          src={product.imageUrl} 
+          alt={product.name} 
+          className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-rich-black via-transparent to-transparent opacity-60" />
+        
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-rich-black/40 backdrop-blur-[2px]">
+          <button 
+            onClick={() => onOrder(product, selectedVariant)}
+            className="btn-royal scale-90 group-hover:scale-100 transition-transform duration-500"
+          >
+            Acquire Now
+          </button>
+        </div>
+        
+        <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-col gap-2">
+          <div className="glass-royal px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[10px] uppercase tracking-widest font-display font-bold text-white">
+            {product.category || 'Exclusive'}
+          </div>
+        </div>
+      </div>
+      
+      <div className="p-6 sm:p-8 text-center">
+        <h3 className="text-xl sm:text-2xl font-serif font-bold mb-1 sm:mb-2 group-hover:text-white transition-colors duration-500">{product.name}</h3>
+        
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
+          {(product.variants || []).map((v, i) => (
+            <button
+              key={i}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedVariant(v);
+              }}
+              className={cn(
+                "px-3 py-1 rounded-full text-[10px] font-mono transition-all border",
+                selectedVariant.size === v.size 
+                  ? "bg-white text-rich-black border-white" 
+                  : "bg-transparent text-white/40 border-white/10 hover:border-white/30"
+              )}
+            >
+              {v.size}ml
+            </button>
+          ))}
+        </div>
+
+        <div className="w-10 sm:w-12 h-[1px] bg-white/30 mx-auto mb-4 sm:mb-6" />
+        <p className="text-white/40 text-xs sm:text-sm font-light mb-6 sm:mb-8 line-clamp-2 leading-relaxed italic">"{product.description}"</p>
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-2xl sm:text-3xl font-display font-light royal-text-gradient">{selectedVariant.price}</span>
+          <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-white/20 font-bold">EGP</span>
+        </div>
+      </div>
+    </GlassCard>
+  );
+};
 
 interface GlassCardProps {
   children?: React.ReactNode;
@@ -188,15 +262,37 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
   product?: Product | null
 }) => {
   const [formData, setFormData] = useState<Partial<Product>>(
-    product || { name: '', description: '', price: 0, imageUrl: '', category: '', size: 50 }
+    product || { name: '', description: '', imageUrl: '', category: '', variants: [{ size: 50, price: 0 }] }
   );
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     if (product) setFormData(product);
-    else setFormData({ name: '', description: '', price: 0, imageUrl: '', category: '', size: 50 });
+    else setFormData({ name: '', description: '', imageUrl: '', category: '', variants: [{ size: 50, price: 0 }] });
   }, [product]);
+
+  const addVariant = () => {
+    const variants = [...(formData.variants || [])];
+    variants.push({ size: 100, price: 0 });
+    setFormData({ ...formData, variants });
+  };
+
+  const removeVariant = (index: number) => {
+    const variants = [...(formData.variants || [])];
+    if (variants.length <= 1) {
+      toast.error('At least one size is required');
+      return;
+    }
+    variants.splice(index, 1);
+    setFormData({ ...formData, variants });
+  };
+
+  const updateVariant = (index: number, field: keyof Variant, value: number) => {
+    const variants = [...(formData.variants || [])];
+    variants[index] = { ...variants[index], [field]: value };
+    setFormData({ ...formData, variants });
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -304,29 +400,54 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            <div>
-              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Price (EGP)</label>
-              <input 
-                type="number" 
-                className="input-glass w-full text-sm sm:text-base" 
-                value={formData.price ?? 0}
-                onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
-              />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40">Available Sizes & Prices</label>
+              <button 
+                onClick={addVariant}
+                type="button"
+                className="flex items-center gap-1 text-[10px] text-white hover:text-white transition-colors uppercase tracking-widest font-bold"
+              >
+                <Plus className="w-3 h-3" /> Add Size
+              </button>
             </div>
-            <div>
-              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Size (ml)</label>
-              <input 
-                type="number" 
-                className="input-glass w-full text-sm sm:text-base" 
-                value={formData.size ?? 50}
-                onChange={e => setFormData({ ...formData, size: Number(e.target.value) })}
-                placeholder="e.g. 50"
-              />
+            
+            <div className="space-y-3">
+              {(formData.variants || []).map((variant, index) => (
+                <div key={index} className="flex gap-4 items-end animate-in fade-in slide-in-from-top-1 duration-300">
+                  <div className="flex-1">
+                    <label className="block text-[8px] uppercase tracking-[0.2em] font-display font-semibold text-white/20 mb-1">Size (ml)</label>
+                    <input 
+                      type="number" 
+                      className="input-glass w-full text-sm" 
+                      value={variant.size}
+                      onChange={e => updateVariant(index, 'size', Number(e.target.value))}
+                      placeholder="e.g. 50"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-[8px] uppercase tracking-[0.2em] font-display font-semibold text-white/20 mb-1">Price (EGP)</label>
+                    <input 
+                      type="number" 
+                      className="input-glass w-full text-sm" 
+                      value={variant.price}
+                      onChange={e => updateVariant(index, 'price', Number(e.target.value))}
+                    />
+                  </div>
+                  <button 
+                    onClick={() => removeVariant(index)}
+                    className="p-3 text-red-500/40 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
             </div>
-            <div>
-              <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Product Image</label>
-              <div className="space-y-3">
+          </div>
+
+          <div>
+            <label className="block text-[8px] sm:text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-1 sm:mb-2">Product Image</label>
+            <div className="space-y-3">
                 <div className="flex gap-2">
                   <label className={cn(
                     "flex-1 flex items-center justify-center gap-2 input-glass cursor-pointer hover:bg-white/5 transition-all relative overflow-hidden h-[42px] sm:h-auto",
@@ -381,7 +502,6 @@ const ProductModal = ({ isOpen, onClose, onSave, product }: {
                 </div>
               </div>
             </div>
-          </div>
 
           <div>
             <label className="block text-[10px] uppercase tracking-[0.2em] font-display font-bold text-white/40 mb-2">Olfactory Story</label>
@@ -414,6 +534,7 @@ export function StoreApp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -493,7 +614,6 @@ export function StoreApp() {
 
   const handleDeleteProduct = async (id: string) => {
     const productsPath = 'products';
-    if (!window.confirm('Are you sure you want to remove this masterpiece?')) return;
     try {
       await deleteDoc(doc(db, productsPath, id));
       toast.success('Removed from collection');
@@ -502,8 +622,24 @@ export function StoreApp() {
     }
   };
 
-  const orderViaWhatsApp = (product: Product) => {
-    const message = `Hello Wafaa Store, I would like to order: ${product.name} (${product.price} EGP)`;
+  const handleDeleteAllProducts = async () => {
+    if (!isAdmin || products.length === 0) return;
+    
+    const t = toast.loading('Clearing collection...');
+    try {
+      const productsPath = 'products';
+      const deletePromises = products.map(p => deleteDoc(doc(db, productsPath, p.id)));
+      await Promise.all(deletePromises);
+      setShowClearAllConfirm(false);
+      toast.success('Collection cleared successfully', { id: t });
+    } catch (error) {
+      toast.error('Failed to clear collection', { id: t });
+      handleFirestoreError(error, OperationType.DELETE, 'products');
+    }
+  };
+
+  const orderViaWhatsApp = (product: Product, selectedVariant: Variant) => {
+    const message = `Hello Wafaa Store, I would like to order: ${product.name} (Size: ${selectedVariant.size}ml, Price: ${selectedVariant.price} EGP)`;
     const url = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
@@ -545,46 +681,81 @@ export function StoreApp() {
             exit={{ opacity: 0, x: -20 }}
             className="pt-32 px-4 max-w-7xl mx-auto"
           >
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-12 gap-6">
               <h1 className="text-4xl font-serif font-bold royal-text-gradient">Collection Management</h1>
-              <button 
-                onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
-                className="btn-royal flex items-center gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Add Masterpiece
-              </button>
+              <div className="flex items-center gap-4">
+                {products.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    {showClearAllConfirm ? (
+                      <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-300">
+                        <button 
+                          onClick={handleDeleteAllProducts}
+                          className="px-4 py-2 rounded-lg bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-red-700 transition-colors"
+                        >
+                          Confirm
+                        </button>
+                        <button 
+                          onClick={() => setShowClearAllConfirm(false)}
+                          className="px-4 py-2 rounded-lg bg-white/10 text-white/60 text-[10px] font-bold uppercase tracking-widest hover:bg-white/20 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => setShowClearAllConfirm(true)}
+                        className="px-6 py-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all border border-red-500/20 flex items-center gap-2 text-xs font-bold uppercase tracking-widest"
+                      >
+                        <AlertTriangle className="w-4 h-4" />
+                        Clear All
+                      </button>
+                    )}
+                  </div>
+                )}
+                <button 
+                  onClick={() => { setEditingProduct(null); setIsModalOpen(true); }}
+                  className="btn-royal flex items-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Add Masterpiece
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
-              {products.map(product => (
-                <GlassCard key={product.id} className="p-4 sm:p-6 flex gap-4 sm:gap-6 items-center border-white/[0.05]">
-                  <img src={product.imageUrl} alt="" className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl sm:rounded-2xl object-cover border border-white/20" referrerPolicy="no-referrer" />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-serif font-bold text-base sm:text-xl truncate">{product.name}</h3>
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <p className="royal-text-gradient font-display font-semibold text-sm sm:text-base">{product.price} EGP</p>
-                      <span className="text-white/40 text-[8px] sm:text-[10px]">•</span>
-                      <p className="text-white/60 text-[10px] sm:text-xs font-mono">{product.size}ml</p>
+              {products.map(product => {
+                const minPrice = Math.min(...(product.variants || []).map(v => v.price));
+                const maxPrice = Math.max(...(product.variants || []).map(v => v.price));
+                const prices = minPrice === maxPrice ? `${minPrice} EGP` : `${minPrice}-${maxPrice} EGP`;
+
+                return (
+                  <GlassCard key={product.id} className="p-4 sm:p-6 flex gap-4 sm:gap-6 items-center border-white/[0.05]">
+                    <img src={product.imageUrl} alt="" className="w-16 h-16 sm:w-24 sm:h-24 rounded-xl sm:rounded-2xl object-cover border border-white/20" referrerPolicy="no-referrer" />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-serif font-bold text-base sm:text-xl truncate">{product.name}</h3>
+                      <div className="flex flex-col">
+                        <p className="royal-text-gradient font-display font-semibold text-sm sm:text-base">{prices}</p>
+                        <p className="text-white/40 text-[10px] sm:text-xs">{(product.variants || []).length} Sizes available</p>
+                      </div>
+                      <p className="text-white/20 text-[8px] sm:text-[10px] uppercase tracking-widest mt-1">{product.category}</p>
                     </div>
-                    <p className="text-white/20 text-[8px] sm:text-[10px] uppercase tracking-widest mt-1">{product.category}</p>
-                  </div>
-                  <div className="flex flex-col gap-1 sm:gap-2">
-                    <button 
-                      onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}
-                      className="p-2 sm:p-3 hover:bg-white/5 rounded-lg sm:rounded-xl text-white transition-colors"
-                    >
-                      <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteProduct(product.id)}
-                      className="p-2 sm:p-3 hover:bg-white/5 rounded-lg sm:rounded-xl text-red-400/60 hover:text-red-400 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </button>
-                  </div>
-                </GlassCard>
-              ))}
+                    <div className="flex flex-col gap-1 sm:gap-2">
+                      <button 
+                        onClick={() => { setEditingProduct(product); setIsModalOpen(true); }}
+                        className="p-2 sm:p-3 hover:bg-white/5 rounded-lg sm:rounded-xl text-white transition-colors"
+                      >
+                        <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="p-2 sm:p-3 hover:bg-white/5 rounded-lg sm:rounded-xl text-red-400/60 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </button>
+                    </div>
+                  </GlassCard>
+                );
+              })}
             </div>
           </motion.main>
         ) : (
@@ -649,46 +820,12 @@ export function StoreApp() {
             {/* Products Grid */}
             <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-12">
               {filteredProducts.map((product, idx) => (
-                <GlassCard key={product.id} delay={idx * 0.1} className="group border-white/[0.05] hover:border-white/30 transition-all duration-700">
-                  <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden">
-                    <img 
-                      src={product.imageUrl} 
-                      alt={product.name} 
-                      className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-rich-black via-transparent to-transparent opacity-60" />
-                    
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-rich-black/40 backdrop-blur-[2px]">
-                      <button 
-                        onClick={() => orderViaWhatsApp(product)}
-                        className="btn-royal scale-90 group-hover:scale-100 transition-transform duration-500"
-                      >
-                        Acquire Now
-                      </button>
-                    </div>
-                    
-                    <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-col gap-2">
-                      <div className="glass-royal px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[10px] uppercase tracking-widest font-display font-bold text-white">
-                        {product.category || 'Exclusive'}
-                      </div>
-                      <div className="glass px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[10px] uppercase tracking-widest font-mono font-bold text-white/60">
-                        {product.size}ml
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="p-6 sm:p-8 text-center">
-                    <h3 className="text-xl sm:text-2xl font-serif font-bold mb-1 sm:mb-2 group-hover:text-white transition-colors duration-500">{product.name}</h3>
-                    <p className="text-white/30 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-display mb-3 sm:mb-4">{product.category}</p>
-                    <div className="w-10 sm:w-12 h-[1px] bg-white/30 mx-auto mb-4 sm:mb-6" />
-                    <p className="text-white/40 text-xs sm:text-sm font-light mb-6 sm:mb-8 line-clamp-2 leading-relaxed italic">"{product.description}"</p>
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-2xl sm:text-3xl font-display font-light royal-text-gradient">{product.price}</span>
-                      <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-white/20 font-bold">EGP</span>
-                    </div>
-                  </div>
-                </GlassCard>
+                <StoreProductCard 
+                  key={product.id} 
+                  product={product} 
+                  delay={idx * 0.1} 
+                  onOrder={orderViaWhatsApp} 
+                />
               ))}
             </section>
 
