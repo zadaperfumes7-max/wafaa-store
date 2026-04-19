@@ -133,7 +133,15 @@ const StoreProductCard: React.FC<StoreProductCardProps> = ({ product, delay, onO
 
   return (
     <GlassCard delay={delay} className="group border-white/[0.05] hover:border-white/30 transition-all duration-700">
-      <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden">
+      <div 
+        className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden cursor-pointer"
+        onClick={() => {
+          // On mobile, tapping the image triggers the order directly with the selected variant
+          if (window.innerWidth < 640) {
+            onOrder(product, selectedVariant);
+          }
+        }}
+      >
         <img 
           src={product.imageUrl} 
           alt={product.name} 
@@ -142,10 +150,13 @@ const StoreProductCard: React.FC<StoreProductCardProps> = ({ product, delay, onO
         />
         <div className="absolute inset-0 bg-gradient-to-t from-rich-black via-transparent to-transparent opacity-60" />
         
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 bg-rich-black/40 backdrop-blur-[2px]">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 sm:group-hover:opacity-100 transition-all duration-500 sm:bg-rich-black/40 sm:backdrop-blur-[2px]">
           <button 
-            onClick={() => onOrder(product, selectedVariant)}
-            className="btn-royal scale-90 group-hover:scale-100 transition-transform duration-500"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOrder(product, selectedVariant);
+            }}
+            className="btn-royal scale-90 sm:group-hover:scale-100 transition-transform duration-500 hidden sm:flex"
           >
             Acquire Now
           </button>
@@ -170,7 +181,7 @@ const StoreProductCard: React.FC<StoreProductCardProps> = ({ product, delay, onO
                 setSelectedVariant(v);
               }}
               className={cn(
-                "px-3 py-1 rounded-full text-[10px] font-mono transition-all border",
+                "px-3 py-1 rounded-full text-[10px] font-mono transition-all border min-h-[32px] min-w-[60px] flex items-center justify-center",
                 selectedVariant.size === v.size 
                   ? "bg-white text-rich-black border-white" 
                   : "bg-transparent text-white/40 border-white/10 hover:border-white/30"
@@ -183,9 +194,20 @@ const StoreProductCard: React.FC<StoreProductCardProps> = ({ product, delay, onO
 
         <div className="w-10 sm:w-12 h-[1px] bg-white/30 mx-auto mb-4 sm:mb-6" />
         <p className="text-white/40 text-xs sm:text-sm font-light mb-6 sm:mb-8 line-clamp-2 leading-relaxed italic">"{product.description}"</p>
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-2xl sm:text-3xl font-display font-light royal-text-gradient">{selectedVariant.price}</span>
-          <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-white/20 font-bold">EGP</span>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-2xl sm:text-3xl font-display font-light royal-text-gradient">{selectedVariant.price}</span>
+            <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-white/20 font-bold">EGP</span>
+          </div>
+          
+          {/* Mobile Specific Action Button */}
+          <button 
+            onClick={() => onOrder(product, selectedVariant)}
+            className="sm:hidden btn-royal w-full flex items-center justify-center gap-2 py-4"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            Acquire Now
+          </button>
         </div>
       </div>
     </GlassCard>
